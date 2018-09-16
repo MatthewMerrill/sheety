@@ -12,7 +12,6 @@ function captureFrame() {
 
 function lookForPen() {
     const [x, y] = findPen(captureFrame());
-    console.log(x, y)
     blob.style.display = 'block';
     blob.style.left = x - blob.style.width/2;
     blob.style.top = y - blob.style.height/2;
@@ -30,8 +29,46 @@ function findPen(frame) {
     return [-1, -1];
 }
 
+function doThreshold(frame, threshold) {
+    const {data, width, height} = frame;
+    const newFrame = new ImageData(width,height);
+    const newData = newFrame.data;
+    for (let i = 0; i < width*height; i++) {
+        const r = data[i*4];
+        const g = data[i*4+1];
+        const b = data[i*4+2];
+        let v = (r + g + b) / 3;
+        if (v > threshold)
+            v = 255;
+        else
+            v = 0;
+        newData[i*4]=newData[i*4+1]=newData[i*4+2]=v;
+        newData[i*4+3]=255;
+    }
+    return newFrame;
+}
+
+let thresholdPreviewTimeout;
+function onThresholdChange(event) {
+    const threshold = event.target.value;
+    const thresholdImageData = doThreshold(captureFrame(), threshold);
+    canvas.width = thresholdImageData.width;
+    canvas.height = thresholdImageData.height;
+    const context = canvas.getContext('2d');
+    context.putImageData(thresholdImageData, 0, 0);
+    thresholdPreview.src = canvas.toDataURL();
+    thresholdPreview.style.display = 'block';
+    if (thresholdPreviewTimeout)
+        clearTimeout(thresholdPreviewTimeout)
+    thresholdPreviewTimeout = setTimeout(function() {
+        thresholdPreview.style.display = 'none';
+        thresholdPreviewTimeout = null;
+    }, 1000);
+}
+
+mime = 'video/webm;codecs=H264'
 async function ligmaMediaRecorder() {
-    const recorder = new MediaRecorder(stream, {mimeType: 'video/webm'}); // consider setting bitrate
+    const recorder = new MediaRecorder(stream, {mimeType: mime}); // consider setting bitrate
     const data = [];
     recorder.ondataavailable = (event) => {
         data.push(event.data);
@@ -39,8 +76,7 @@ async function ligmaMediaRecorder() {
     };
     recorder.onerror = console.error;
     recorder.start();
-    console.log('start recording');
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 10000));
     console.log(recorder.state);
     const stopped = new Promise((resolve, reject) => {
         recorder.onstop = resolve;
@@ -48,15 +84,36 @@ async function ligmaMediaRecorder() {
     });
     recorder.stop();
     await stopped;
-    console.log('done recording');
-    const webm = new Blob(data, {type: 'video/webm'});
+    const webm = new Blob(data, {type: mime});
 
-    return;
-
-    const downloadButton = document.createElement('a');
+    let downloadButton = document.createElement('a');
+    downloadButton.innerText = 'asdf';
     downloadButton.href = URL.createObjectURL(webm);
     downloadButton.download = 'fucl.webm';
     document.body.appendChild(downloadButton);
+
+    // const bytes = await new Promise(resolve => {
+    //     const reader = new FileReader();
+    //     reader.onload = function() {
+    //         resolve(this.result);
+    //     };
+    //     reader.readAsArrayBuffer(webm);
+    // });
+
+    // downloadButton = document.createElement('a');
+    // downloadButton.innerText = '2asdf';
+    // downloadButton.href = URL.createObjectURL(new Blob(new Uint8Array(bytes)));
+    // downloadButton.download = 'fucl2.webm';
+    // document.body.appendChild(downloadButton);
+
+    const formdata = new FormData();
+    formdata.set('video', webm, 'video.webm');
+    const response = await fetch('https://f01e88df.ngrok.io/video', {
+        //const response = await fetch('https://demo.mattmerr.com/video', {
+        method: 'POST',
+        body: formdata,
+    });
+    console.log(response.json());
 }
 
 async function setupVideo() {
@@ -72,9 +129,9 @@ async function setupVideo() {
     canvas = document.createElement('canvas');
     goButton.style.display = 'block';
     goButton.onclick = function() {
-        console.log('begin ligma');
         ligmaMediaRecorder().catch(console.error);
     };
+    threshold.onchange = onThresholdChange;
 }
 
 setupVideo().catch(console.error);

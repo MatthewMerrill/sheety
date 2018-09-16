@@ -13,13 +13,25 @@ video {
 }
 #goButton {
     display: none;
-    float: right;
     background: blue;
     color: white;
     height: 50px;
     width: 50px;
 }
+#goButton, #threshold {
+    float: right;
+}
+#thresholdPreview {
+    display: none,
+    position: absolute,
+    top: 0,
+    left: 0,
+    max-width: 100%;
+    max-height: 100%;
+}
 </style>
 <div id="blob"></div>
-<button id="goButton">ligma</button>
+<button id="goButton">go</button>
+<input id="threshold" type="range" min="0" max="255" step="1">
+<img id="thresholdPreview">
 <script src="./index.js"></script>
