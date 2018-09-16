@@ -10,6 +10,14 @@ function captureFrame() {
     return context.getImageData(0, 0, canvas.width, canvas.height);
 }
 
+function captureFrameBlob() {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toBlob();
+}
+
 function lookForPen() {
     const [x, y] = findPen(captureFrame());
     blob.style.display = 'block';
@@ -66,57 +74,22 @@ function onThresholdChange(event) {
     }, 1000);
 }
 
-mime = 'video/webm'//;codecs=H264'
 async function ligmaMediaRecorder() {
-    const recorder = new MediaRecorder(stream, {mimeType: mime, videoBitsPerSecond: 6000000 }); // consider setting bitrate
-    const data = [];
-    recorder.ondataavailable = (event) => {
-        data.push(event.data);
-        console.log('data!');
-    };
-    recorder.onerror = console.error;
-    recorder.start();
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    console.log(recorder.state);
-    const stopped = new Promise((resolve, reject) => {
-        recorder.onstop = resolve;
-        recorder.onerror = reject;
-    });
-    recorder.stop();
-    await stopped;
-    const webm = new Blob(data, {type: mime});
+    const frame = captureFrameBlob();
 
-    let downloadButton = document.createElement('a');
     downloadButton.innerText = 'asdf';
-    downloadButton.href = URL.createObjectURL(webm);
-    downloadButton.download = 'fucl.webm';
+    downloadButton.href = URL.createObjectURL(frame);
+    downloadButton.download = true;
     document.body.appendChild(downloadButton);
 
-    // const bytes = await new Promise(resolve => {
-    //     const reader = new FileReader();
-    //     reader.onload = function() {
-    //         resolve(this.result);
-    //     };
-    //     reader.readAsArrayBuffer(webm);
-    // });
-
-    // downloadButton = document.createElement('a');
-    // downloadButton.innerText = '2asdf';
-    // downloadButton.href = URL.createObjectURL(new Blob(new Uint8Array(bytes)));
-    // downloadButton.download = 'fucl2.webm';
-    // document.body.appendChild(downloadButton);
-
     const formdata = new FormData();
-    formdata.set('video', webm, 'video.webm');
+    formdata.set('frame', frame);
     formdata.set('threshold', threshold.value);
 
     const response = await fetch('/video', {
-        //const response = await fetch('https://demo.mattmerr.com/video', {
-        'content-type': 'application/x-www-form-urlencoded',
         method: 'POST',
         body: formdata,
     });
-    //console.log(response.json());
     alert(JSON.stringify(await response.json()))
 }
 
