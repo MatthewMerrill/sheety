@@ -11,6 +11,7 @@ requests = "*"
 numpy = "*"
 pillow = "*"
 google-cloud-automl = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.5"

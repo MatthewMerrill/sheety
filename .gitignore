@@ -12,3 +12,4 @@ training/clean/*
 training/chunky/*
 secret/*
 training/split_out_data/*
+webappupload*

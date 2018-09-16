@@ -141,7 +141,7 @@ def split(i):
         pos = (start, first_bar-bu*2, end, last_bar+bu*2)
         cropped = i.crop(pos)
         #chunk = i.crop((start, 0, end, i.height))
-        cropped = chunk.resize(SACRED_SIZE)
+        cropped = cropped.resize(SACRED_SIZE)
         chunks.append((pos, cropped))
     return chunks
 
