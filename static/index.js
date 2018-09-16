@@ -10,12 +10,12 @@ function captureFrame() {
     return context.getImageData(0, 0, canvas.width, canvas.height);
 }
 
-function captureFrameBlob() {
+async function captureFrameBlob() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    return canvas.toBlob();
+    return await new Promise(resolve => canvas.toBlob(resolve));
 }
 
 function lookForPen() {
