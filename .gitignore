@@ -1,0 +1,12 @@
+*.swp
+training/declassified/ training/declassified_data/
+training/split_out/*
+training/split/*
+mattchunks/*
+mattchunks.zip
+training/matt*
+training/declassified_data/*
+training/declassified/*.png
+training/cropped/*
+training/clean/*
+training/chunky/*
