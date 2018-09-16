@@ -10,3 +10,5 @@ training/declassified/*.png
 training/cropped/*
 training/clean/*
 training/chunky/*
+secret/*
+training/split_out_data/*

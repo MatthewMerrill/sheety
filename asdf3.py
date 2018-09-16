@@ -138,10 +138,11 @@ def split(i):
         center = (start + end) // 2
         start = int(center - 1.5*bu)
         end = int(center + 1.5*bu)
-        chunk = i.crop((start, first_bar-bu*2, end, last_bar+bu*2))
+        pos = (start, first_bar-bu*2, end, last_bar+bu*2)
+        cropped = i.crop(pos)
         #chunk = i.crop((start, 0, end, i.height))
-        chunk = chunk.resize(SACRED_SIZE)
-        chunks.append(chunk)
+        cropped = chunk.resize(SACRED_SIZE)
+        chunks.append((pos, cropped))
     return chunks
 
 #split(i)
