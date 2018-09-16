@@ -29,7 +29,8 @@ def Reset():
     #remove('webappupload.webm')
     #remove('webappupload.mp4')
     try:
-        rmtree('webappupload/')
+        #rmtree('webappupload/')
+        pass
     except:
         pass
 
@@ -40,12 +41,15 @@ def Video():
     #with open('webappupload.webm', 'wb') as upload:
     #    upload.write(request.files['video'])
     threshold = int(request.form['threshold'])
-    request.files['video'].save('webappupload.webm')
-    makedirs('webappupload/frames')
-    makedirs('webappupload/frames_out')
+    #makedirs('webappupload/frames')
+    #makedirs('webappupload/frames_out')
+    #request.files['frame'].save('webappupload/frames/theframe.png')
 
-    call(['ffmpeg', '-f', 'webm', '-y', '-i', 'webappupload.webm', '-filter:v', 'crop=in_w:in_h/2:0:0', 'webappupload.mp4'])
-    call(['ffmpeg', '-r', '15', '-y', '-i', 'webappupload.mp4', 'webappupload/frames/video_%04d.png'])
+    #call(['ffmpeg', '-f', 'weImabm', '-y', '-i', 'webappupload.webm', '-filter:v', 'crop=in_w:in_h/2:0:0', 'webappupload.mp4'])
+    #call(['ffmpeg', '-r', '15', '-y', '-i', 'webappupload.mp4', 'webappupload/frames/video_%04d.png'])
+#    img = Image.open('webappupload/frames/theframe.png')
+#    img = img.crop((0, 0, img.width, img.height//2))
+#    img.save('webappupload/frames/theframe.png')
 
     filebase = 'webappupload/frames'
     rects_by_count = {}
@@ -68,12 +72,18 @@ def Video():
     mode_key = -1
     mode_count = -1
     for key, value in rects_by_count.items():
-        if key is 26 and len(value) > mode_count:
+        if key is not 0 and len(value) > mode_count:
             mode = value
             mode_key = key
             mode_count = len(value)
         #print(key, value)
     print(mode)
+
+    for i in range(len(mode[0])):
+        try:
+            mode[0][i][1].save('webappupload/frames_out/frame%d.png' % i)
+        except Exception as e:
+            print(e)
 
     notes = []
     for tup in mode[0]:
@@ -83,14 +93,8 @@ def Video():
             "pitch": predict_pitches(tup[1]).payload[0].display_name,
         })
 
-    try:
-        for i in range(len(mode[0])):
-            chunk.save('webappupload/frames_out/frame%d.png' % i)
-    except:
-        pass
-
     print(notes)
-    return notes
+    return json.dumps(notes)
 
     
 def predict_duration(chunk):

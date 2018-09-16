@@ -75,8 +75,9 @@ function onThresholdChange(event) {
 }
 
 async function ligmaMediaRecorder() {
-    const frame = captureFrameBlob();
+    const frame = await captureFrameBlob();
 
+    let downloadButton = document.createElement('a');
     downloadButton.innerText = 'asdf';
     downloadButton.href = URL.createObjectURL(frame);
     downloadButton.download = true;
